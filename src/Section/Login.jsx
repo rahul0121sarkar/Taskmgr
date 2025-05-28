@@ -1,15 +1,45 @@
 import React from "react";
 import "../App.css";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../database/firebase";
 import { useNavigate } from "react-router-dom";
+import SignupModal from "../Modal/SignupModal";
 
 
 
 const Login = () => {
-
 const navigate = useNavigate();
-const handleLogin = (e)=>{
+
+const [isModal,setModalOpen] = React.useState(false);
+const [user,setUser] = React.useState({
+  email:"",
+  password:""
+})
+
+const [error,setError] = React.useState("");
+
+function handleChange(e){
+  let {name,value} = e.target;
+  setUser((prev)=>({
+    ...prev,
+    [name]:value
+  }))
+}
+
+async function handleLogin(e){
   e.preventDefault();
-  navigate("/dashboard");
+  setError("");
+
+  try{
+    await signInWithEmailAndPassword(auth,user.email,user.password);
+    alert("Login successfully");
+    navigate("/dashboard");
+  }
+  catch(err){
+    alert("Incorrect email or password, please try again later.");
+    setError("Incorrect email or password");
+    console.error(err)
+  }
 }
 
 
@@ -50,6 +80,9 @@ const handleLogin = (e)=>{
             <input
               type="email"
               placeholder="your email"
+              name="email"
+              value={user.email}
+              onChange={handleChange}
               className="w-full px-4 py-3  border text-sm  border-gray-300 bg-[#F7F5F4] rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
           </div>
@@ -60,6 +93,9 @@ const handleLogin = (e)=>{
             <input
               type="password"
               placeholder="your password"
+              name="password"
+              value={user.password}
+              onChange={handleChange}
               className="w-full px-4 py-3 border bg-[#F7F5F4] text-sm border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
           </div>
@@ -71,11 +107,12 @@ const handleLogin = (e)=>{
               onClick={handleLogin}
               className="px-6 py-2 bg-[#FAE150] rounded-full font-medium hover:cursor-pointer hover:brightness-95 transition"
             >
-              Login/Dashboard
+              Login
             </button>
-            <button className="text-sm text-gray-500 hover:underline">
+            <button type="button" className="text-sm text-gray-500 hover:underline hover:cursor-pointer" onClick={()=>setModalOpen(true)}>
               Sign up
             </button>
+          <SignupModal  isOpen={isModal} onClose={() => setModalOpen(false)}/>
           </div>
         </form>
       </div>

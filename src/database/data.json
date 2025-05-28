@@ -1,0 +1,16 @@
+{
+  "users": [
+    {
+      "id": "b9fc",
+      "email": "rahulsarkar0121@gmail.com",
+      "password": "2432",
+      "username": "Digesh Thakur"
+    },
+    {
+      "id": "46e0",
+      "email": "rahulsarkar0121@gmail.com",
+      "password": "2423",
+      "username": "Rahul Sarkar"
+    }
+  ]
+}
