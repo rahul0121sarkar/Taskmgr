@@ -229,11 +229,11 @@ useEffect(()=>{
               <tr key={item.id} className="border-t hover:bg-gray-50 transition">
                 <td className="px-4 py-3 flex items-center gap-2">
                   <div
-                    className="w-5 h-5 border-2 border-black rounded-full cursor-pointer flex items-center justify-center hover:bg-yellow-500 transition-colors"
+                    className="group w-5 h-5 border-2 border-black rounded-full cursor-pointer flex items-center justify-center hover:bg-yellow-500 transition-colors"
                     onClick={() => recentSelected !== item.id && handleCompleteTask(item)}
                   >
                     <svg
-                      className="w-3 h-3 text-green-800"
+                      className="w-3 h-3 text-green-800 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
