@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import "../App.css";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../database/firebase";
 import { useNavigate } from "react-router-dom";
 import SignupModal from "../Modal/SignupModal";
+import LoadingOverlay from "../Components/LoadingOverlay";
 
 
 
 const Login = () => {
+const [loading, setloading] = useState(false)
 const navigate = useNavigate();
 
 const [isModal,setModalOpen] = React.useState(false);
@@ -28,7 +30,7 @@ function handleChange(e){
 
 async function handleLogin(e){
   e.preventDefault();
-  setError("");
+  setloading(true)
 
   try{
     await signInWithEmailAndPassword(auth,user.email,user.password);
@@ -40,13 +42,14 @@ async function handleLogin(e){
     setError("Incorrect email or password");
     console.error(err)
   }
+  finally{
+    setloading(false)
+  }
 }
-
 
   return (
     <>
-  
-
+  {loading && <LoadingOverlay message="Loging In..."/>}
   <div className="bg-[#f8f6ff] h-screen flex items-center justify-center p-4">
   <div className="max-w-6xl w-full flex gap-10 items-center">
     {/* Illustration */}
@@ -105,7 +108,11 @@ async function handleLogin(e){
             <button
               type="submit"
               onClick={handleLogin}
-              className="px-6 py-2 bg-[#FAE150] rounded-full font-medium hover:cursor-pointer hover:brightness-95 transition"
+              disabled={loading}
+              className={`px-6 py-2 bg-[#FAE150] rounded-full font-medium transition flex items-center justify-center gap-3 ${
+                loading ? "bg-yellow-300 cursor-not-allowed"
+                :"bg-[#FAE150] hover:brightness-95 hover:cursor-pointer"
+              } `}
             >
               Login
             </button>

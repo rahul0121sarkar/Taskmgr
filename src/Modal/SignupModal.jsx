@@ -1,15 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword,updateProfile} from "firebase/auth";
 import { database,auth } from "../database/firebase";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faCircleXmark} from "@fortawesome/free-solid-svg-icons";
+import LoadingOverlay from "../Components/LoadingOverlay";
+import { useNavigate } from "react-router-dom";
+
 
 const SignupModal = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
+
   const [user, setUser] = React.useState({
     email: "",
     password: "",
     username: "",
   });
 
+  const [loading, setloading] = useState(false)
 
   function handleChange(e) {
     let { name, value } = e.target;
@@ -21,6 +29,7 @@ const SignupModal = ({ isOpen, onClose }) => {
 
   async function adddetails(e) {
     e.preventDefault();
+    setloading(true);
     
     try {
        const userCredential = await createUserWithEmailAndPassword(
@@ -51,22 +60,29 @@ const SignupModal = ({ isOpen, onClose }) => {
         username: "",
       });
       onClose();
+      navigate("/dashboard");
     } catch (err) {
       console.error("Error addign document:", err);
+      console.log("Failed to sign up. please try again");
+    } finally{
+      setloading(false);
     }
   }
 
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 flex justify-center items-center z-50 ">
+    <>
+    <div className="fixed inset-0 flex justify-center items-center z-50 backdrop-blur-xs ">
+    {loading && <LoadingOverlay message="Signing In..."/>}
       <div className="bg-[#F7F5F4] rounded-2xl p-6 w-[500px] shadow-lg relative">
         <div className="flex justify-between items-center ">
           <div>
             <button
-              className="absolute top-6.5 right-10 text-gray-500 cursor-pointer"
+              className="absolute top-3 right-5 text-gray-500 cursor-pointer"
               onClick={onClose}
             >
-              X
+             <FontAwesomeIcon icon={faCircleXmark} style={{fontSize:"28px"}} />
+             
             </button>
           </div>
         </div>
@@ -119,9 +135,13 @@ const SignupModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={adddetails}
-                className="px-6 py-2 bg-[#FAE150] rounded-full font-medium hover:cursor-pointer hover:brightness-95 transition "
+                disabled={loading}
+                className={`px-6 py-2 bg-[#FAE150] rounded-full font-medium transition flex items-center justify-center gap-3 ${
+                  loading ? "bg-yellow-300 cursor-not-allowed"
+                  : "bg-[#FAE150] hover:brigntness-95 hover:cursor-pointer"
+                } `}
               >
-                SignUp
+                Signup
               </button>
               <button
                 type="button"
@@ -137,6 +157,7 @@ const SignupModal = ({ isOpen, onClose }) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
