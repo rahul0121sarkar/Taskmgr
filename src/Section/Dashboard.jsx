@@ -23,6 +23,8 @@ const Dashboard = () => {
     console.log(dateString)
   }
   
+  const [searchQuery,setSearchQuery] = useState("");
+
   const path = location.pathname;
   let currentTab ="dashboard";
   if(path.startsWith("/task")) currentTab ="task";
@@ -35,7 +37,7 @@ const Dashboard = () => {
         {/* <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />  */}
         <Sidebar  /> 
         <div className="flex flex-col flex-1">
-          <Navbar />
+          <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
           <div className="p-6 overflow-auto">
             {currentTab === "dashboard" && (
@@ -47,7 +49,7 @@ const Dashboard = () => {
 
                 <div className="bg-white p-4 rounded-lg shadow-lg">
                   <h2 className="text-xl font-semibold mb-4 ">My Tasks</h2>
-                  <TaskList selectedDate={selectedDate}  />
+                  <TaskList selectedDate={selectedDate} searchQuery={searchQuery}  />
                 </div>
 
                  

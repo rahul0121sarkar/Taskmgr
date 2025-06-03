@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../App.css";
 import { collection, getDocs, doc, deleteDoc,setDoc,query,where, getDoc } from "firebase/firestore";
 import { database } from "../database/firebase";
@@ -10,6 +10,8 @@ import Navbar from "./Navbar";
 
 const TaskDetails = () => {
   const [tasks, setTasks] = React.useState([]);
+  const [filteredTasks, setFilteredTasks] = React.useState([]);
+  const [searchQuery, setSearchQuery] = React.useState("");
   const [recentSelected,setRecentSelected] = React.useState(null);
   const [editTask,setEditTask] = React.useState(null);
   const [isModalOpen,setIsModalOpen] = React.useState(false);
@@ -136,6 +138,18 @@ return ()=>unsubscribe();
   }, [])
   
 
+useEffect(()=>{
+  const filtered = tasks.filter((task)=>{
+    const name = task.task_name?.toLowerCase() || "";
+    const assignedUser = task.assign?.username?.toLowerCase() || "";
+    return(
+      name.includes(searchQuery.toLowerCase())||
+      assignedUser.includes(searchQuery.toLowerCase())
+    );
+  });
+  setFilteredTasks(filtered);
+},[searchQuery,tasks]);
+
   const getDueDate = (dueDate) => {
     if (!dueDate) return "No Due Date";
 
@@ -196,7 +210,7 @@ return ()=>unsubscribe();
      <div className="flex h-screen">
       <Sidebar/>
       <div className="flex flex-col flex-1">
-      <Navbar/>
+      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery}/>
    <div className="p-6 max-w-4xl ">
       <table className="min-w-full table-auto bg-white  rounded-lg overflow-hidden shadow-sm">
         <thead className=" text-left text-gray-700 text-sm font-semibold border-b">
@@ -210,7 +224,7 @@ return ()=>unsubscribe();
           </tr>
         </thead>
         <tbody className="text-sm text-gray-700">
-          {tasks.map((item, idx) => {
+          {(searchQuery?filteredTasks:tasks).map((item, idx) => {
             return (
               <tr key={item.id} className="border-t hover:bg-gray-50 transition">
                 <td className="px-4 py-3 flex items-center gap-2">

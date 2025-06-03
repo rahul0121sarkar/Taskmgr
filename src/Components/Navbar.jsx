@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import TaskModal from "../Modal/TaskModal";
 
-const Navbar = ({setActiveTab}) => {
+const Navbar = ({setActiveTab,searchQuery,setSearchQuery}) => {
   const [isModal,setModalOpen] = React.useState(false);
   return (
     <>
@@ -13,8 +13,8 @@ const Navbar = ({setActiveTab}) => {
             <input
               type="text"
               placeholder="Search"
-              name=""
-              id=""
+              value={searchQuery}
+              onChange={(e)=>setSearchQuery(e.target.value)}
               className="w-[220px] pl-3"
             />
           </div>

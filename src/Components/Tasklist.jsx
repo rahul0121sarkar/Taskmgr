@@ -13,10 +13,11 @@ import { database } from "../database/firebase";
 import { Timestamp } from "firebase/firestore";
 import { getToday, getTomorrow } from "../Utils/dateUtils";
 
-const TaskList = ({ selectedDate }) => {
+const TaskList = ({ selectedDate,searchQuery }) => {
   const [tasks, setTasks] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [recentlyCompletedId, setRecentlyCompletedId] = useState(null);
+  const [filteredTasks,setFilteredTasks] = useState([]);
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -62,6 +63,18 @@ const TaskList = ({ selectedDate }) => {
     };
     fetchTask();
   }, [selectedDate]);
+
+  useEffect(()=>{
+    const filtered = tasks.filter((task)=>{
+      const name = task.task_name?.toLowerCase() || "";
+      const assigne = task.assigne?.toLowerCase() || "";
+      return(
+        name.includes(searchQuery.toLowerCase()) ||
+        assigne.includes(searchQuery.toLowerCase())
+      );
+    });
+    setFilteredTasks(filtered);
+  },[searchQuery,tasks]);
 
   const getDueDate = (dueDate) => {
     if (!dueDate) return "No Due Date";
@@ -126,7 +139,7 @@ const TaskList = ({ selectedDate }) => {
           </tr>
         </thead>
         <tbody className="text-sm text-gray-700">
-          {tasks.map((item) => (
+          {filteredTasks.map((item) => (
             <tr key={item.id} className="border-t hover:bg-gray-50 transition">
               <td className="px-4 py-3 flex items-center gap-2">
                 <div
