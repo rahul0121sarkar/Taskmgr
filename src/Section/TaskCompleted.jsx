@@ -12,55 +12,102 @@ const TaskCompleted = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-  setLoading(true);
+  // useEffect(() => {
 
-    const fetchCompletedTasks = async () => {
-      try {
-        const auth = getAuth();
-        const currentUser = auth.currentUser;
+  // setLoading(true);
 
-        if (!currentUser) {
-          alert("You need to be logged in to view tasks");
-          setLoading(false);
-          return;
-        }
+  //   const fetchCompletedTasks = async () => {
+  //     try {
+  //       const auth = getAuth();
+  //       const currentUser = auth.currentUser;
 
+  //       if (!currentUser) {
+  //         alert("You need to be logged in to view tasks");
+  //         setLoading(false);
+  //         return;
+  //       }
+
+  //       const myUid = currentUser.uid;
+  //       const completedTasksRef = collection(database, "completed_task");
+
+  //       // Fetch tasks assigned to or created by the user
+  //       const q = query(
+  //         completedTasksRef,
+  //         where("userId", "==", myUid)
+  //         // If you want to include assigned tasks, you need a composite index and more queries
+  //       );
+
+  //       const querySnapshot = await getDocs(q);
+
+  //       const tasksData = querySnapshot.docs.map(doc => ({
+  //         id: doc.id,
+  //         ...doc.data(),
+  //       }));
+
+  //       // Sort by dueDate ascending
+  //       tasksData.sort((a, b) => {
+  //         const dateA = a.dueDate?.toDate ? a.dueDate.toDate() : new Date(a.dueDate);
+  //         const dateB = b.dueDate?.toDate ? b.dueDate.toDate() : new Date(b.dueDate);
+  //         return dateA - dateB;
+  //       });
+
+  //       setTasks(tasksData);
+  //     } catch (err) {
+  //       console.error("Error fetching completed tasks:", err);
+  //       alert("Failed to fetch completed tasks.");
+  //     } finally{
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchCompletedTasks();
+  // }, []);
+
+  useEffect(()=>{
+    setLoading(true);
+    const auth = getAuth();
+
+    const unsubscribe = auth.onAuthStateChanged(async(currentUser)=>{
+      if(!currentUser){
+        setLoading(false);
+        return;
+      }
+
+      try{
         const myUid = currentUser.uid;
-        const completedTasksRef = collection(database, "completed_task");
+        const completedRef = collection(database,"completed_task");
 
-        // Fetch tasks assigned to or created by the user
-        const q = query(
-          completedTasksRef,
-          where("userId", "==", myUid)
-          // If you want to include assigned tasks, you need a composite index and more queries
-        );
+        const createdQuery = query(completedRef,where("userId","==",myUid));
+        const assignedQuery = query(completedRef,where("assign.uid","==",myUid));
 
-        const querySnapshot = await getDocs(q);
+        const [createdSnap,assignedSnap] = await Promise.all([
+          getDocs(createdQuery),
+          getDocs(assignedQuery),
+        ]);
 
-        const tasksData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const createdTasks = createdSnap.docs.map(doc=>({id:doc.id, ...doc.data()}));
+        const assignedTasks = assignedSnap.docs.map(doc=>({id:doc.id,...doc.data()}));
 
-        // Sort by dueDate ascending
-        tasksData.sort((a, b) => {
-          const dateA = a.dueDate?.toDate ? a.dueDate.toDate() : new Date(a.dueDate);
-          const dateB = b.dueDate?.toDate ? b.dueDate.toDate() : new Date(b.dueDate);
+        const allTasks =[
+          ...createdTasks,
+          ...assignedTasks.filter(tasks => !createdTasks.some(created =>created.id ===tasks.id)),
+        ];
+
+        allTasks.sort((a,b)=>{
+          const dateA = a.dueDate?.toDate?.() || new Date(a.dueDate);
+          const dateB = b.dueDate?.toDate?.() || new Date(b.dueDate);
           return dateA - dateB;
         });
-
-        setTasks(tasksData);
-      } catch (err) {
-        console.error("Error fetching completed tasks:", err);
-        alert("Failed to fetch completed tasks.");
-      } finally{
+        setTasks(allTasks);
+      }catch(err){
+        console.log("Error fetching completed tasks:",err)
+        alert("failed to fetch completed tasks");
+      }finally{
         setLoading(false);
       }
-    };
-
-    fetchCompletedTasks();
-  }, []);
+    });
+    return () => unsubscribe();
+  },[]);
 
   const getDueDate = (dueDate) => {
     if (!dueDate) return "No Due Date";
