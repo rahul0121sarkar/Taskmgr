@@ -68,9 +68,9 @@ const handleLogout = async()=>{
       </div>
 
 
-    <div className='mt-auto flex items-center gap-2 mb-3 pl-4 h-10 hover:bg-amber-200 hover:rounded-b-2xl duration-100 transition-all cursor-pointer'>
+    <div className='mt-auto flex items-center gap-2 mb-3 pl-4 h-10 hover:bg-amber-200 hover:rounded-b-2xl duration-100 transition-all cursor-pointer' onClick={handleLogout}>
      <FontAwesomeIcon icon={faRightFromBracket} className="text-black " />
-      <h1 className='text-black text-lg font-semibold opacity-75' onClick={handleLogout} >Logout</h1>
+      <h1 className='text-black text-lg font-semibold opacity-75'  >Logout</h1>
       </div>
 
      

@@ -6,12 +6,14 @@ import { database } from "../database/firebase";
 import { getToday,getTomorrow} from "../Utils/dateUtils";
 import { getAuth } from "firebase/auth";
 import LoadingOverlay from "../Components/LoadingOverlay";
+import { useNavigate } from "react-router-dom";
 
 
-const TaskModal = ({ isOpen, onClose, setActiveTab,editingTask,onTaskUpdated }) => {
+const TaskModal = ({ isOpen, onClose, setActiveTab,editingTask,onTaskUpdated,onTaskCreated }) => {
   const [users, setUsers] = React.useState([]);
   const [selectDate,setSelectDate] = React.useState("");  
   const [loading, setloading] = React.useState(false)
+  const navigate = useNavigate();
   
   const [task, setTask] = React.useState({
     task_name: "",
@@ -45,14 +47,6 @@ const TaskModal = ({ isOpen, onClose, setActiveTab,editingTask,onTaskUpdated }) 
       }
 
 
-  //  const assigneUsername = task.assign?.username||"";
-  //  const assigneeUser = users.find((u)=>u.username === assigneUsername);
-  // if(!assigneeUser){
-  //   alert("Invalid assigne Selected");
-  //   setloading(false);
-  //   return ;
-  // }
-
   if(!task.assign?.uid || !task.assign?.username ){
     alert("Invalid assigne selected")
     setloading(false);
@@ -71,17 +65,6 @@ const TaskModal = ({ isOpen, onClose, setActiveTab,editingTask,onTaskUpdated }) 
         userId:currentUser.uid
      }
 
-    //   await addDoc(collection(database, "tasks"), {
-    //     task_name: task.task_name,
-    //     stage: task.stage,
-    //     priority: task.priority,
-    //     assign: task.assign,
-    //     description: task.description,
-    //     dueDate: task.dueDate instanceof Date ? Timestamp.fromDate(task.dueDate) : null,
-    //     createdAt: Timestamp.fromDate(new Date()),
-    //     userId:currentUser.uid
-    // });
-
     
       if(editingTask){
         const taskRef = doc(database,"tasks",editingTask.id);
@@ -92,8 +75,15 @@ const TaskModal = ({ isOpen, onClose, setActiveTab,editingTask,onTaskUpdated }) 
           ...payload,
           createdAt:Timestamp.fromDate(new Date()),
         });
+
+        onTaskCreated({
+          id:docRef.id,
+          ...payload,
+          createdAt:Timestamp.fromDate(new Date()),
+        })
       }
       alert(`Task ${editingTask ? "updated" : "added"} successfully!!  `);
+      navigate("/task")
       setTask({
         task_name:"",
         dueDate:"",
@@ -234,17 +224,6 @@ const TaskModal = ({ isOpen, onClose, setActiveTab,editingTask,onTaskUpdated }) 
                 }
             />
             
-{/* 
-            {showDateInput && (
-            <input type="date" className="bg-gray-300 w-8 px-2 py-1 rounded-md text-sm hover:cursor-pointer"
-                onChange={(e) => {
-                setTask({ ...task, dueDate: new Date(e.target.value) });
-                 setSelectDate("custom");
-                }}
-            />
-            )} */}
-
-            {/* <button className="text-gray-500 hover:cursor-pointer" onClick={()=>setShowDateInput((prev)=>!prev)}>+</button> */}
           </div>
 
           <div className="flex items-center gap-4">

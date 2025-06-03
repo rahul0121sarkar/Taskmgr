@@ -9,7 +9,6 @@ import { useLocation } from "react-router-dom";
 
 
 const Dashboard = () => {
-  // const [activeTab, setActiveTab] = React.useState("dashboard");
   const location = useLocation();
 
   const [selectedDate,setSelectedDate] = useState(()=>{
@@ -34,7 +33,6 @@ const Dashboard = () => {
   return (
     <>
       <div className="flex h-screen">
-        {/* <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />  */}
         <Sidebar  /> 
         <div className="flex flex-col flex-1">
           <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />

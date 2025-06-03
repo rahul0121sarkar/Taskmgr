@@ -18,71 +18,6 @@ const TaskDetails = () => {
   const [isModalOpen,setIsModalOpen] = React.useState(false);
   const [loading, setloading] = React.useState(false)
 
-  // React.useEffect(() => {
-  //   const fetchTasks = async () => {
-  //     try {
-  //       const auth = getAuth();
-  //       const currentUser = auth.currentUser;
-
-  //       if (!currentUser) {
-  //         alert("You need to be logged in to view tasks");
-  //         return [];
-  //       }
-
-  //       const myUid = currentUser.uid;
-
-  //       const taskRef = collection(database,"tasks")
-
-  //       const createdQuery = query(taskRef,where("userId","==",myUid));
-  //       const assignedQuery = query(taskRef,where("assign.uid","==",myUid));
-
-  //       const [createdSnap,assignedSnap] = await Promise.all([
-  //         getDocs(createdQuery),
-  //         getDocs(assignedQuery)
-  //       ])
-
-  //       const createdTasks = createdSnap.docs.map(doc =>({id:doc.id,...doc.data()}));
-  //       const assignedTasks = assignedSnap.docs.map(doc=>({id:doc.id,...doc.data()}))
-
-  //       const allTasks = [...createdTasks,...assignedTasks.filter(
-  //         task=>!createdTasks.some(created=>created.id === task.id)
-  //       )];
-
-  //       // return allTasks
-
-  //       // const querySnapshot = await getDocs(collection(database, "tasks"));
-  //       // const taskData = querySnapshot.docs.map((doc) => ({
-  //       //   id: doc.id,
-  //       //   ...doc.data(),
-  //       // }));
-
-  //       // const userTasks = taskData.filter(
-  //       //   (task) => task.userId === currentUser.uid || task.assign?.userId === currentUser.uid
-  //       // );
-
-  //       // userTasks.sort((a, b) => {
-  //       //   const dateA = a.dueDate?.toDate?.() || new Date(a.dueDate);
-  //       //   const dateB = b.dueDate?.toDate?.() || new Date(b.dueDate);
-  //       //   return dateA - dateB;
-  //       // });
-
-  //       setTasks(allTasks);
-
-  //       allTasks.sort((a,b)=>{
-  //         const dateA = a.dueDate?.toDate?.() || new Date(a.dueDate);
-  //         const dateB = b.dueDate?.toDate?.() || new Date(b.dueDate);
-  //         return dateA - dateB;
-  //       });
-
-  //     } catch (err) {
-  //       console.error("Error fetching tasks:", err);
-  //       alert("Failed to fetch tasks, please try again later.");
-  //     }
-  //     setloading(false)
-  //   };
-  //   fetchTasks();
-  // }, []);
-
 React.useEffect(() => {
 const auth = getAuth();
 setloading(true);
@@ -198,6 +133,21 @@ useEffect(()=>{
     }
   };
 
+
+//delete
+
+const handleDeleteTask = async (taskId) =>{
+  if(!window.confirm("Are you sure you want to delete this task permanently?")) return;
+  try{
+    await deleteDoc(doc(database,"tasks",taskId));
+    setTasks((prev)=>prev.filter((t)=>t.id !==taskId));
+  }catch(err){
+    console.log("Error deleting task:",err);
+    alert("Faild to delete task");
+  }
+}
+
+
   const handleModalClose = () =>{
     setIsModalOpen(false);
     setEditTask(null);
@@ -220,6 +170,7 @@ useEffect(()=>{
             <th className="px-4 py-3">Priority</th>
             <th className="px-4 py-3">Description</th>
             <th className="px-4 py-3">Assign</th>
+            <th className="px-4 py-3">Actions</th>
           </tr>
         </thead>
         <tbody className="text-sm text-gray-700">
@@ -285,11 +236,16 @@ useEffect(()=>{
                 <td className="px-4 py-3">{item.description}</td>
                 <td className="px-4 py-3 font-medium">{item.assign.username || "unassigned"}</td>
 
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 ">
                     <button onClick={()=>{
                       setEditTask(item);
                       setIsModalOpen(true);
-                    }} className="bg-[#FAE150] text-black font-semibold cursor-pointer border rounded-lg px-3 py-1">Edit</button>
+                    }} className="bg-[#FAE150] text-black font-semibold cursor-pointer border rounded-lg px-3 py-1">Edit</button>   
+                </td>
+                <td className="px-4 py-3 ">
+                    <button onClick={()=>{
+                      handleDeleteTask(item.id);
+                    }} className="bg-[#CF984A] text-black font-semibold cursor-pointer border rounded-lg px-3 py-1">Delete</button>
                 </td>
               </tr>
             );
@@ -303,6 +259,10 @@ useEffect(()=>{
         editingTask={editTask}
         onTaskUpdated={(updatedTask)=>{
           setTasks((prev)=>prev.map((t)=>(t.id === updatedTask.id?updatedTask :t)))
+          handleModalClose();
+        }}
+        onTaskCreated={(newTask)=>{
+          setTasks((prev)=>[...prev,newTask]);
           handleModalClose();
         }}
 
