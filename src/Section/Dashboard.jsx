@@ -64,7 +64,7 @@ const Dashboard = () => {
 
             {currentTab === "completed" && (
               <div className="bg-white p-4 rounded-lg shadow-lg">
-                <TaskCompleted/>
+                <TaskCompleted searchQuery={searchQuery}/>
               </div>
             )}
           </div>
