@@ -89,7 +89,6 @@ setloading(true);
 
 const unsubscribe = auth.onAuthStateChanged(async (currentUser) =>{
   if(!currentUser){
-    alert("You need to be logged in to view Table");
     setloading(false);
     return;
   }
