@@ -5,12 +5,16 @@ import { getAuth } from "firebase/auth";
 import { getToday, getTomorrow } from "../Utils/dateUtils";
 import Sidebar from "../Components/Sidebar";
 import Navbar from "../Components/Navbar";
+import LoadingOverlay from "../Components/LoadingOverlay";
+
 
 const TaskCompleted = () => {
   const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+  setLoading(true);
+
     const fetchCompletedTasks = async () => {
       try {
         const auth = getAuth();
@@ -50,8 +54,9 @@ const TaskCompleted = () => {
       } catch (err) {
         console.error("Error fetching completed tasks:", err);
         alert("Failed to fetch completed tasks.");
+      } finally{
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchCompletedTasks();
@@ -79,6 +84,7 @@ const TaskCompleted = () => {
 
   return (
     <>
+    {loading && <LoadingOverlay message="Completed Task..."/>}
     <div className="flex h-screen">
         <Sidebar/>
         <div className="flex flex-col flex-1">

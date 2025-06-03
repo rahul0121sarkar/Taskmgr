@@ -7,6 +7,7 @@ import { getAuth } from "firebase/auth";
 import TaskModal from "../Modal/TaskModal";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import LoadingOverlay from "./LoadingOverlay";
 
 const TaskDetails = () => {
   const [tasks, setTasks] = React.useState([]);
@@ -15,7 +16,7 @@ const TaskDetails = () => {
   const [recentSelected,setRecentSelected] = React.useState(null);
   const [editTask,setEditTask] = React.useState(null);
   const [isModalOpen,setIsModalOpen] = React.useState(false);
-  const [loading, setloading] = React.useState(true)
+  const [loading, setloading] = React.useState(false)
 
   // React.useEffect(() => {
   //   const fetchTasks = async () => {
@@ -84,6 +85,7 @@ const TaskDetails = () => {
 
 React.useEffect(() => {
 const auth = getAuth();
+setloading(true);
 
 const unsubscribe = auth.onAuthStateChanged(async (currentUser) =>{
   if(!currentUser){
@@ -131,8 +133,9 @@ const unsubscribe = auth.onAuthStateChanged(async (currentUser) =>{
   }catch(err){
     console.log("Error fetching tasks:",err);
     alert("Failed to fetch tasks,please try again later")
+  }finally{
+    setloading(false)
   }
-  setloading(false);
 });
 return ()=>unsubscribe();
   }, [])
@@ -203,10 +206,7 @@ useEffect(()=>{
 
   return (
     <>
-    {loading ?(
-      <div className="text-center mt-4">Loading Task....</div>
-    ):(
-
+    {loading && <LoadingOverlay message="Loading Task..."/>}
      <div className="flex h-screen">
       <Sidebar/>
       <div className="flex flex-col flex-1">
@@ -314,7 +314,7 @@ useEffect(()=>{
 
      </div> 
     
-    )}
+    
     
     </>
   
