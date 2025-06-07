@@ -10,12 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fontsource/inter": "^5.2.5",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@heroicons/react": "^2.2.0",
+    "@mui/joy": "^5.0.0-beta.52",
     "@tailwindcss/vite": "^4.1.7",
     "axios": "^1.9.0",
     "firebase": "^11.8.1",
     "fontawesome": "^5.6.3",
+    "framer-motion": "^12.16.0",
     "react": "^19.1.0",
     "react-calendar": "^5.1.0",
     "react-dom": "^19.1.0",

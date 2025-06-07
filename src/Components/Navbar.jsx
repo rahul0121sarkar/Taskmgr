@@ -19,7 +19,7 @@ const Navbar = ({setActiveTab,searchQuery,setSearchQuery}) => {
             />
           </div>
           <div>
-            <button className="h-8 w-28 bg-amber-300 rounded-xl border-4 cursor-pointer" onClick={()=>setModalOpen(true)}>
+            <button className="h-8 w-28 bg-amber-300 rounded-xl  border-4 cursor-pointer" onClick={()=>setModalOpen(true)}>
               <FontAwesomeIcon icon={faPlus} className="pr-2" />
               New Task
             </button>

@@ -5,6 +5,9 @@ import { BrowserRouter,Routes,Route } from 'react-router-dom'
 import Dashboard from './Section/Dashboard'
 import TaskDetails from './Components/TaskDetails'
 import TaskCompleted from './Section/TaskCompleted'
+import Feedback from './Section/Feedback'
+import Feedback2 from './Section/Feedback2'
+
 
 
 const App = () => {
@@ -16,6 +19,8 @@ const App = () => {
           <Route path='/dashboard' element={<Dashboard/>} />
           <Route path='/task' element={<TaskDetails/>} />
           <Route path='/completed' element={<TaskCompleted/>}/>
+          <Route path ='/feedback' element={<Feedback/>}/>
+          <Route path ='/feedback2' element={<Feedback2/>}/>
         </Routes>
       </BrowserRouter>
     </>

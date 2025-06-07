@@ -29,6 +29,7 @@ const TaskList = ({ selectedDate,searchQuery }) => {
 
         if (!user || !selectedDate) {
           setTasks([]);
+          setLoading(false);
           return;
         }
 
@@ -40,21 +41,65 @@ const TaskList = ({ selectedDate,searchQuery }) => {
         const endOfDay = new Date(selectedDate);
         endOfDay.setHours(23, 59, 59, 999);
 
-        const q = query(
-          taskRef,
-          where("userId", "==", user.uid),
-          where("dueDate", ">=", Timestamp.fromDate(startOfDay)),
-          where("dueDate", "<=", Timestamp.fromDate(endOfDay))
-        );
+
+          // Query 1: Created tasks for the user with dueDate filter
+      const createdQuery = query(
+        taskRef,
+        where("userId", "==", user.uid),
+        where("dueDate", ">=", Timestamp.fromDate(startOfDay)),
+        where("dueDate", "<=", Timestamp.fromDate(endOfDay))
+      );
+
+
+       // Query 2: Assigned tasks for the user with dueDate filter
+      const assignedQuery = query(
+        taskRef,
+        where("assign.uid", "==", user.uid),
+        where("dueDate", ">=", Timestamp.fromDate(startOfDay)),
+        where("dueDate", "<=", Timestamp.fromDate(endOfDay))
+      );
+
+
+      // Execute both queries in parallel
+      const [createdSnap, assignedSnap] = await Promise.all([
+        getDocs(createdQuery),
+        getDocs(assignedQuery),
+      ]);
+
+       // Map docs to task objects
+      const createdTasks = createdSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      const assignedTasks = assignedSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+       // Merge tasks, avoid duplicates (tasks both created and assigned)
+      const allTasks = [
+        ...createdTasks,
+        ...assignedTasks.filter(
+          (task) => !createdTasks.some((created) => created.id === task.id)
+        ),
+      ];
+
+        // const q = query(
+        //   taskRef,
+        //   where("userId", "==", user.uid),
+        //   where("dueDate", ">=", Timestamp.fromDate(startOfDay)),
+        //   where("dueDate", "<=", Timestamp.fromDate(endOfDay))
+        // );
         
 
-        const querySnapshot = await getDocs(q);
-        const taskList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        // const querySnapshot = await getDocs(q);
+        // const taskList = querySnapshot.docs.map((doc) => ({
+        //   id: doc.id,
+        //   ...doc.data(),
+        // }));
 
-        setTasks(taskList);
+        setTasks(allTasks);
       } catch (error) {
         console.error("Error in fetching the data:", error);
       } finally {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../App.css";
-import { collection, getDocs, doc, deleteDoc,setDoc,query,where, getDoc } from "firebase/firestore";
+import { collection, getDocs, doc, deleteDoc,setDoc,query,where } from "firebase/firestore";
 import { database } from "../database/firebase";
 import { getToday, getTomorrow } from "../Utils/dateUtils";
 import { getAuth } from "firebase/auth";
@@ -8,6 +8,7 @@ import TaskModal from "../Modal/TaskModal";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import LoadingOverlay from "./LoadingOverlay";
+
 
 const TaskDetails = () => {
   const [tasks, setTasks] = React.useState([]);

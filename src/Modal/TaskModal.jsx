@@ -1,7 +1,7 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faListCheck, faStopwatch, faUser, faFlag,faCircleXmark} from "@fortawesome/free-solid-svg-icons";
-import { collection, addDoc, getDocs,Timestamp, setDoc ,doc } from "firebase/firestore";
+import { collection, addDoc, getDocs,Timestamp, setDoc ,doc} from "firebase/firestore";
 import { database } from "../database/firebase";
 import { getToday,getTomorrow} from "../Utils/dateUtils";
 import { getAuth } from "firebase/auth";
@@ -76,14 +76,11 @@ const TaskModal = ({ isOpen, onClose, setActiveTab,editingTask,onTaskUpdated,onT
           createdAt:Timestamp.fromDate(new Date()),
         });
 
-        onTaskCreated({
-          id:docRef.id,
-          ...payload,
-          createdAt:Timestamp.fromDate(new Date()),
-        })
+      
       }
       alert(`Task ${editingTask ? "updated" : "added"} successfully!!  `);
-      navigate("/task")
+      // navigate("/task")
+      onTaskCreated?.();
       setTask({
         task_name:"",
         dueDate:"",
