@@ -8,6 +8,10 @@ import {
   faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
 
+import RatingSelector from "../Components/RatingSelector";
+import TextareaInput from "../Components/TextareaInput";
+import YesNoSelector from "../Components/YesNoSelector";
+
 const questions = [
   "How satisfied are you with the overall event experience?",
   "Did the event meet your expectations and goals?",
@@ -23,10 +27,7 @@ const questions = [
 ];
 
 const yesNoQuestions = [1, 3, 6, 7, 8];
-const yesNoOptions = [
-  { key: "Y", label: "Yes" },
-  { key: "N", label: "NO" },
-];
+const textQuestions = [9, 10];
 
 const Feedback = () => {
   const [current, setCurrent] = useState(0);
@@ -113,10 +114,27 @@ const Feedback = () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("wheel", handleWheel);
     };
-  }, [current, selected]); // dependencies stay the same
+  }, [current, selected]);
 
-  const isYesNo = yesNoQuestions.includes(current);
-  const isTextInput = [9, 10].includes(current);
+  // Dynamically pick the component
+  let inputComponent = null;
+  if (yesNoQuestions.includes(current)) {
+    inputComponent = (
+      <YesNoSelector selected={selected} setSelected={setSelected} />
+    );
+  } else if (textQuestions.includes(current)) {
+    inputComponent = (
+      <TextareaInput
+        selected={selected}
+        setSelected={setSelected}
+        handleNext={handleNext}
+      />
+    );
+  } else {
+    inputComponent = (
+      <RatingSelector selected={selected} setSelected={setSelected} />
+    );
+  }
 
   return (
     <>
@@ -153,13 +171,13 @@ const Feedback = () => {
               transition={{ duration: 0.5 }}
               className="mb-6 sm:mb-8 w-full flex items-start"
             >
-              <span className="text-[#5c9ead] font-medium text-lg sm:text-xl min-w-[2rem] flex-shrink-0 flex items-center">
+              <span className="text-[#437E93] font-medium text-lg sm:text-xl min-w-[2rem] flex-shrink-0 flex items-center">
                 {current + 1}{" "}
                 <span className="mx-1">
                   <FontAwesomeIcon icon={faArrowRight} className="text-sm" />
                 </span>
               </span>
-              <span className="text-xl sm:text-2xl text-gray-800 font-normal block">
+              <span className="text-xl sm:text-2xl text-[#3D3D3D] font-normal block">
                 {questions[current]}
               </span>
             </motion.div>
@@ -174,92 +192,11 @@ const Feedback = () => {
               transition={{ duration: 0.5 }}
               className="w-full flex flex-col gap-3 mb-7 sm:px-7"
             >
-              {isYesNo ? (
-                yesNoOptions.map((option) => {
-                  const isSelected = selected === option.label;
-                  return (
-                    <button
-                      key={option.key}
-                      type="button"
-                      onClick={() =>
-                        setSelected(
-                          selected === option.label ? null : option.label
-                        )
-                      }
-                      className={`w-full sm:w-56 flex items-center sniglet-regular cursor-pointer justify-between px-4 py-3 border-2 rounded-md transition-all duration-200 ${
-                        isSelected
-                          ? "border-[#5c9ead] bg-[#e7f2f5]"
-                          : "border-[#b6cfd6] bg-white hover:border-[#5c9ead]"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`w-6 h-6 flex items-center justify-center rounded font-lg transition-all ${
-                            isSelected
-                              ? "bg-[#5c9ead] text-white"
-                              : "text-[#5c9ead] border border-[#5c9ead]"
-                          }`}
-                        >
-                          {option.key}
-                        </span>
-                        <span className="text-lg text-[#5c9ead]">
-                          {option.label}
-                        </span>
-                      </div>
-                      {isSelected && (
-                        <svg
-                          className="w-5 h-5 text-[#5c9ead]"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      )}
-                    </button>
-                  );
-                })
-              ) : isTextInput ? (
-                <textarea
-                  rows="1"
-                  placeholder=" your feedback here..."
-                  className="w-full p-4 text-lg border-b-2 sniglet-regular border-[#5c9ead] bg-transparent text-[#5c9ead] focus:outline-none resize-none placeholder-[#b6cfd6]"
-                  value={selected || ""}
-                  onChange={(e) => setSelected(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleNext();
-                    }
-                  }}
-                />
-              ) : (
-                <div className="flex flex-wrap md:flex-nowrap overflow-x-auto w-full gap-2">
-                  {[...Array(11).keys()].map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={() => setSelected(selected === n ? null : n)}
-                      className={`w-10 h-10 sm:w-20 sm:h-15 rounded-md border-2 flex cursor-pointer items-center justify-center text-lg sm:text-xl font-medium transition-colors ${
-                        selected === n
-                          ? "bg-[#5c9ead] text-white border-[#5c9ead]"
-                          : "bg-[#e7f2f5] text-gray-700 border-[#a3bfc7] hover:border-[#5c9ead]"
-                      }`}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {inputComponent}
             </motion.div>
           </AnimatePresence>
 
-          <div className="flex flex-row sm:flex-row sm:items-center gap-2 px-1 sm:px-7 w-full max-w-xs mb-4 mt-6">
+          <div className="flex flex-row sm:flex-row sm:items-center gap-2 px-1 sm:px-7 w-full max-w-xs mb-4 mt-8 sm:mt-0  ">
             {current > 0 && (
               <button
                 type="button"
@@ -275,7 +212,7 @@ const Feedback = () => {
               disabled={selected === null}
               className={`
              w-full sm:w-14 px-4 py-2
-             rounded-md text-lg font-medium cursor-pointer sniglet-regular shadow-md transition-all
+             rounded-md text-lg font-medium cursor-pointer sniglet-regular transition-all
              ${
                selected === null
                  ? "bg-[#b6e0ee] text-[#1B545F] cursor-not-allowed"
@@ -291,7 +228,7 @@ const Feedback = () => {
           </div>
 
           {/* Arrow Controls */}
-          <div className="hidden sm:flex w-full justify-end gap-2 mt-4 sm:absolute sm:bottom-10 sm:right-40 sm:w-auto sm:mt-0">
+          <div className="hidden sm:flex w-full justify-end gap-2 mt-4 sm:absolute sm:bottom-10 sm:right-12 sm:w-auto sm:mt-0">
             <button
               type="button"
               onClick={handlePrev}
@@ -309,6 +246,14 @@ const Feedback = () => {
               className="rounded-md px-4 py-2 bg-[#c9e9f6] shadow-md cursor-pointer hover:bg-[#9ed3e8] transition disabled:opacity-50"
             >
               <FontAwesomeIcon icon={faAngleDown} />
+            </button>
+
+             <button
+              type="button"
+              disabled={selected === null || current === questions.length - 1}
+              className="rounded-md px-4 py-2 bg-[#c9e9f6] text-[#1B545F] shadow-md cursor-pointer hover:bg-[#9ed3e8] transition disabled:opacity-50"
+            >
+             Powered by BizconnectXplor
             </button>
           </div>
         </form>

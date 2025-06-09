@@ -8,29 +8,28 @@ import {
   faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
 
+import RatingSelector from "../Components/RatingSelector";
+import TextareaInput from "../Components/TextareaInput";
+import YesNoSelector from "../Components/YesNoSelector";
+
 const questions = [
-  "How would you rate the quality of the 3D animation or immersive experience delivered?",
-  "Did the final output align with your vision and objectives?",
-  "How has our AR/VR solution improved your product presentations or training?",
-  "Did the 3D digital twin help optimize maintenance or reduce downtime?",
-  "Did the immersive content (AR, VR, try-on experience) help engage your customers or employees better?",
-  "Have you seen an improvement in understanding or retention from training participants?",
-  "Was the integration of BizConnect Xplor’s solutions into your environment smooth?",
-  "How would you rate our team's communication and technical support?",
-  "Have you noticed an increase in sales, leads, or operational efficiency since using our solutions?",
-  "Would you recommend BizConnect Xplor to others in your industry?",
-  "What did you love most about working with us?",
-  "What could we improve or add to serve you better in future projects?",
+  "How satisfied are you with the overall event experience?",
+  "Did the event meet your expectations and goals?",
+  "How would you rate our communication during the planning process?",
+  "Were deadlines and timelines met effectively?",
+  "How would you rate our team’s professionalism and responsiveness on event day?",
+  "How satisfied were you with the creativity and design of the event?",
+  "Was the quality of vendors/suppliers up to your standards?",
+  "Do you feel the event provided good value for your investment?",
+  "Would you consider working with us again or recommending us to others?",
+  "What did you like most about the event?",
+  "What could we have done better ?",
 ];
 
-const yesNoQuestions = [1, 3, 4, 5, 6, 8, 9];
+const yesNoQuestions = [1, 3, 6, 7, 8];
+const textQuestions = [9, 10];
 
-const yesNoOptions = [
-  { key: "Y", label: "Yes" },
-  { key: "N", label: "NO" },
-];
-
-const Feedback2 = () => {
+const Feedback = () => {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState(Array(questions.length).fill(null));
   const [selected, setSelected] = useState(null);
@@ -75,24 +74,26 @@ const Feedback2 = () => {
   };
 
   useEffect(() => {
-    let isThrottled = false;
+    const throttleRef = { current: false };
 
     const handleKeyDown = (e) => {
-      if (isThrottled) return;
+      if (throttleRef.current) return;
+
       if (e.key === "ArrowDown") {
         handleNext();
-        isThrottled = true;
-        setTimeout(() => (isThrottled = false), 700);
+        throttleRef.current = true;
+        setTimeout(() => (throttleRef.current = false), 700);
       }
+
       if (e.key === "ArrowUp") {
         handlePrev();
-        isThrottled = true;
-        setTimeout(() => (isThrottled = false), 700);
+        throttleRef.current = true;
+        setTimeout(() => (throttleRef.current = false), 700);
       }
     };
 
     const handleWheel = (e) => {
-      if (isThrottled) return;
+      if (throttleRef.current) return;
 
       if (e.deltaY > 20) {
         handleNext();
@@ -100,9 +101,9 @@ const Feedback2 = () => {
         handlePrev();
       }
 
-      isThrottled = true;
+      throttleRef.current = true;
       setTimeout(() => {
-        isThrottled = false;
+        throttleRef.current = false;
       }, 700);
     };
 
@@ -115,8 +116,25 @@ const Feedback2 = () => {
     };
   }, [current, selected]);
 
-  const isYesNo = yesNoQuestions.includes(current);
-  const isTextInput = [2, 10, 11].includes(current);
+  // Dynamically pick the component
+  let inputComponent = null;
+  if (yesNoQuestions.includes(current)) {
+    inputComponent = (
+      <YesNoSelector selected={selected} setSelected={setSelected} />
+    );
+  } else if (textQuestions.includes(current)) {
+    inputComponent = (
+      <TextareaInput
+        selected={selected}
+        setSelected={setSelected}
+        handleNext={handleNext}
+      />
+    );
+  } else {
+    inputComponent = (
+      <RatingSelector selected={selected} setSelected={setSelected} />
+    );
+  }
 
   return (
     <>
@@ -144,26 +162,26 @@ const Feedback2 = () => {
           className="w-full max-w-2xl flex flex-col sniglet-regular items-start overflow-hidden mt-20 sm:mt-32"
           style={{ minHeight: 350 }}
         >
-           <AnimatePresence mode="wait">
-                      <motion.div
-                        key={current}
-                        initial={{ y: 40, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -40, opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="mb-6 sm:mb-8 w-full flex items-start"
-                      >
-                        <span className="text-[#5c9ead] font-medium text-lg sm:text-xl min-w-[2rem] flex-shrink-0 flex items-center">
-                          {current + 1}{" "}
-                          <span className="mx-1">
-                            <FontAwesomeIcon icon={faArrowRight} className="text-sm" />
-                          </span>
-                        </span>
-                        <span className="text-xl sm:text-2xl text-gray-800 font-normal block">
-                          {questions[current]}
-                        </span>
-                      </motion.div>
-                    </AnimatePresence>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current}
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -40, opacity: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-6 sm:mb-8 w-full flex items-start"
+            >
+              <span className="text-[#5c9ead] font-medium text-lg sm:text-xl min-w-[2rem] flex-shrink-0 flex items-center">
+                {current + 1}{" "}
+                <span className="mx-1">
+                  <FontAwesomeIcon icon={faArrowRight} className="text-sm" />
+                </span>
+              </span>
+              <span className="text-xl sm:text-2xl text-gray-800 font-normal block">
+                {questions[current]}
+              </span>
+            </motion.div>
+          </AnimatePresence>
 
           <AnimatePresence mode="wait">
             <motion.div
@@ -174,92 +192,10 @@ const Feedback2 = () => {
               transition={{ duration: 0.5 }}
               className="w-full flex flex-col gap-3 mb-7 sm:px-7"
             >
-              {isYesNo ? (
-                yesNoOptions.map((option) => {
-                  const isSelected = selected === option.label;
-                  return (
-                    <button
-                      key={option.key}
-                      type="button"
-                      onClick={() =>
-                        setSelected(
-                          selected === option.label ? null : option.label
-                        )
-                      }
-                      className={`w-full sm:w-56 flex items-center sniglet-regular cursor-pointer justify-between px-4 py-3 border-2 rounded-md transition-all duration-200 ${
-                        isSelected
-                          ? "border-[#5c9ead] bg-[#e7f2f5]"
-                          : "border-[#b6cfd6] bg-white hover:border-[#5c9ead]"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`w-6 h-6 flex items-center justify-center rounded font-lg transition-all ${
-                            isSelected
-                              ? "bg-[#5c9ead] text-white"
-                              : "text-[#5c9ead] border border-[#5c9ead]"
-                          }`}
-                        >
-                          {option.key}
-                        </span>
-                        <span className="text-lg text-[#5c9ead]">
-                          {option.label}
-                        </span>
-                      </div>
-                      {isSelected && (
-                        <svg
-                          className="w-5 h-5 text-[#5c9ead]"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      )}
-                    </button>
-                  );
-                })
-              ) : isTextInput ? (
-                <textarea
-                  rows="1"
-                  placeholder=" your feedback here..."
-                  className="w-full p-4 text-lg border-b-2 sniglet-regular border-[#5c9ead] bg-transparent text-[#5c9ead] focus:outline-none resize-none placeholder-[#b6cfd6]"
-                  value={selected || ""}
-                  onChange={(e) => setSelected(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleNext();
-                    }
-                  }}
-                />
-              ) : (
-                <div className="flex flex-wrap md:flex-nowrap overflow-x-auto w-full gap-2">
-                  {[...Array(11).keys()].map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={() => setSelected(selected === n ? null : n)}
-                      className={`w-10 h-10 sm:w-20 sm:h-15 rounded-md border-2 flex cursor-pointer items-center justify-center text-lg sm:text-xl font-medium transition-colors ${
-                        selected === n
-                          ? "bg-[#5c9ead] text-white border-[#5c9ead]"
-                          : "bg-[#e7f2f5] text-gray-700 border-[#a3bfc7] hover:border-[#5c9ead]"
-                      }`}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {inputComponent}
             </motion.div>
           </AnimatePresence>
 
-          {/* Mobile Action Row (arrow only if not first question) */}
           <div className="flex flex-row sm:flex-row sm:items-center gap-2 px-1 sm:px-7 w-full max-w-xs mb-4 mt-6">
             {current > 0 && (
               <button
@@ -291,7 +227,7 @@ const Feedback2 = () => {
             )}
           </div>
 
-          {/* Arrow Controls - visible only on desktop/tablet */}
+          {/* Arrow Controls */}
           <div className="hidden sm:flex w-full justify-end gap-2 mt-4 sm:absolute sm:bottom-10 sm:right-40 sm:w-auto sm:mt-0">
             <button
               type="button"
@@ -318,4 +254,4 @@ const Feedback2 = () => {
   );
 };
 
-export default Feedback2;
+export default Feedback;
